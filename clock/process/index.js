@@ -1,0 +1,1 @@
+const interface = require('./interface');

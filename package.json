@@ -1,0 +1,9 @@
+{
+  "main": "index.js",
+  "dependencies": {
+    "easymidi": "^1.0.1",
+    "midi-clock": "0.0.1",
+    "node-ipc": "9.1.1",
+    "redux": "4.0.1"
+  }
+}
