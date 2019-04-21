@@ -1,9 +1,26 @@
 {
+  "name": "seq-v2",
+  "version": "1.0.0",
+  "description": "Node Midi Sequencer",
   "main": "index.js",
   "dependencies": {
     "easymidi": "^1.0.1",
     "midi-clock": "0.0.1",
     "node-ipc": "9.1.1",
     "redux": "4.0.1"
-  }
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/asconwe/seq-v2.git"
+  },
+  "author": "August Conwell",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/asconwe/seq-v2/issues"
+  },
+  "homepage": "https://github.com/asconwe/seq-v2#readme"
 }
