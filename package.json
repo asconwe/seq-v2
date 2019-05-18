@@ -7,10 +7,13 @@
     "easymidi": "^1.0.1",
     "midi-clock": "0.0.1",
     "node-ipc": "9.1.1",
-    "redux": "4.0.1"
+    "redux": "4.0.1",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {},
   "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

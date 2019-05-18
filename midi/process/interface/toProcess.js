@@ -13,7 +13,7 @@ const creators = {
   getOutputs: () => [types.GET_OUTPUTS],
   addPortListener: port => [types.ADD_PORT_LISTENER, { port }],
   addPortListener: port => [types.REMOVE_PORT_LISTENER, { port }],
-  midiMessageOut: (port, message) => [types.MIDI_MESSAGE_OUT, { port, message }]
+  midiMessageOut: (port, channel, message) => [types.MIDI_MESSAGE_OUT, { port, channel, message }]
 };
 
 module.exports = {

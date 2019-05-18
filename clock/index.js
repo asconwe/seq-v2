@@ -1,3 +1,5 @@
 const { fork } = require('child_process');
 
-fork('clock/process');
+const createTrack = (id) => fork('track/process', id);
+
+module.exports = createTrack;

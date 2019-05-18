@@ -8,10 +8,18 @@ function observeStore(store, select, onChange) {
   let currentState;
 
   function handleChange() {
-    const nextState = select(store.getState());
-    if (nextState !== currentState) {
-      currentState = nextState;
-      onChange(currentState);
+    try {
+      const nextState = JSON.stringify(select(store.getState()));
+      if (nextState !== currentState) {
+        let prevState;
+        prevState = currentState;
+        currentState = nextState;
+        onChange(JSON.parse(currentState), JSON.parse(prevState));
+      }
+    } catch (error) {
+      const err = new Error(`INVALID STATE ERROR: ${error.message}`)
+      err.stack = error.stack;
+      throw err;
     }
   }
 

@@ -1,8 +1,9 @@
 const types = {
   'PONG': 'PONG',
 };
+
 const creators = {
-  pong: () => ({ type: 'PONG' }),
+  pong: (message) => ([types.PONG, { message }]),
 };
 
 

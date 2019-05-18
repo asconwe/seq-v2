@@ -1,14 +1,16 @@
-const ipc = require('../../../ipcSetup');
-
+const setupIpc = require('../../../ipcSetup');
 const { types } = require('./toProcess');
 const { creators } = require('./fromProcess');
+const selectiveListener = require('./selectiveListener');
 
-const ipcHandlers = require('../handlers/ipcHandlers');
-const midiHandlers = require('../handlers/midiHandlers');
+const createIpcHandlers = require('../handlers/ipcHandlers');
+
+const ipc = setupIpc('midi');
 
 const { pong } = creators;
 
-ipc.config.id = 'midi';
+const { handleGetInputs, handleGetOutputs, handleMidiMessageOut, handleAddPortListener, handleRemovePortListener } = createIpcHandlers(ipc);
+
 ipc.serve(() => {
   ipc.server.on(types.PING, (data, socket) => {
     ipc.server.emit(socket, ...pong(data.message + ' midi'));
@@ -24,4 +26,6 @@ ipc.serve(() => {
   ipc.server.on(types.REMOVE_PORT_LISTENER, handleRemovePortListener);
 })
 
-module.exports = interface;
+ipc.server.start();
+
+selectiveListener(ipc);

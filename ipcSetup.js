@@ -1,6 +1,10 @@
 const ipc = require('node-ipc');
-const selectiveLogger = require('../../../selectiveLogger');
+const selectiveLogger = require('./selectiveLogger');
 
-ipc.config.logger = selectiveLogger;
 
-module.exports = ipc;
+module.exports = (id) => {
+  const normalizedId = id.toUpperCase().trim();
+  ipc.config.id = normalizedId;
+  ipc.config.logger = selectiveLogger(normalizedId);
+  return ipc;
+}

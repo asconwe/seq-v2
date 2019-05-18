@@ -1,11 +1,4 @@
-const { creators } = require('./interface/toProcess');
-const { types } = require('./interface/fromProcess');
-
+const selectiveListener = require('./interface/selectiveListener');
 const interface = require('./interface');
 
-interface();
-
-module.exports = {
-  messageCreators: creators,
-  messageTypes: types,
-}
+selectiveListener(interface.ipc);

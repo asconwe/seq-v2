@@ -1,84 +1,85 @@
 const { createStore } = require('redux');
 
 const types = {
-  'ADD_MIDI_LISTENER': 'ADD_MIDI_LISTENER',
-  'REMOVE_MIDI_LISTENER': 'REMOVE_MIDI_LISTENER',
+  'ADD_PORT_LISTENER': 'ADD_PORT_LISTENER',
+  'REMOVE_PORT_LISTENER': 'REMOVE_PORT_LISTENER',
 }
 
 const actionCreators = {
-  addMidiListener: (port, channel, socket) => ({
-    type: types.ADD_MIDI_LISTENER,
+  addPortListener: (port, channel, socket) => ({
+    type: types.ADD_PORT_LISTENER,
     port,
     channel,
     socket,
   }),
-  removeMidiListener = (port, channel) => ({
-    type: types.REMOVE_MIDI_LISTENER,
+  removePortListener: (port, channel) => ({
+    type: types.REMOVE_PORT_LISTENER,
     port,
     channel
   })
 }
 
 const selectors = {
-  selectPortIds: state => state.listenersByPort,
+  selectPortIds: state => state.portIds,
+  selectPortListeners: state => state.handlersByPort,
 }
 
-const addMidiListener = (state, action) => {
-  if (state.listenersByPort[action.port]) {
+const addPortListener = (state, action) => {
+  if (state.handlersByPort[action.port]) {
     if (
-      state.listenersByPort[action.port].find(item =>
+      state.handlersByPort[action.port].find(item =>
         item.channel === action.channel)
     ) {
       return state;
     }
     return {
       ...state,
-      listenersByPort: {
-        ...state.listenersByPort,
+      handlersByPort: {
+        ...state.handlersByPort,
         [action.port]: [...state[action.port], action.channel],
       }
     }
   }
   return {
     portIds: [...state.portIds, action.port],
-    listenersByPort: {
-      ...state.listenersByPort,
+    handlersByPort: {
+      ...state.handlersByPort,
       [action.port]: [action.channel]
     }
   }
 }
 
-const removeMidiListener = (state, action) => {
-  const channels = state.listenersByPort[action.port];
+const removePortListener = (state, action) => {
+  const channels = state.handlersByPort[action.port];
   if (!channels) return state;
   const newChannels = channels.filters(channel => channel !== action.channel);
   return newChannels.length === 0
     ? ({
       portIds: state.portIds.filter(name => name === action.port),
-      listenersByPort: {
-        ...state.listenersByPort,
+      handlersByPort: {
+        ...state.handlersByPort,
         [action.port]: null
       }
     })
     : ({
       ...state,
-      listenersByPort: {
-        ...state.listenersByPort,
+      handlersByPort: {
+        ...state.handlersByPort,
         [action.port]: newChannels,
       }
     });
 }
 
 const initialState = {
-  listenersByPort: {},
+  handlersByPort: {},
   portIds: [],
 }
 const reducer = (state = initialState, action) => {
   switch (action.type) {
-    case types.ADD_MIDI_LISTENER:
-      return addMidiListener(state, action);
-    case types.REMOVE_MIDI_LISTENER:
-      return removeMidiListener(state, action);
+    case types.ADD_PORT_LISTENER:
+      return addPortListener(state, action);
+    case types.REMOVE_PORT_LISTENER:
+      return removePortListener(state, action);
     default:
       return state;
   }

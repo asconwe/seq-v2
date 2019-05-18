@@ -1,3 +1,3 @@
-module.exports = (str) => str.startsWith('=')
-  ? console.log(str)
+module.exports = (id) => (str) => str.startsWith('=')
+  ? console.log(`${id} ${str}`)
   : null;
