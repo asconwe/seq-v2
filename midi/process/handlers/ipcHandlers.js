@@ -2,8 +2,9 @@ const emidi = require('easymidi')
 const { creators } = require('../interface/fromProcess');
 const { store, actionCreators } = require('../store');
 const createMidiHandlers = require('./midiHandlers');
+const createIpcHandler = require('../../../utils/createIpcHandler');
 
-const { addMidiListener, removeMidiListener } = actionCreators;
+const { addPortListener, removePortListener } = actionCreators;
 const { midiInputs, midiOutputs } = creators;
 
 const inputs = emidi.getInputs();
@@ -23,20 +24,18 @@ const messageAll = (type, data) => () => {
 }
 
 const ipcHandlers = (ipc) => {
+  const handler = createIpcHandler(ipc);
   const { handleMidiMessage } = createMidiHandlers(ipc);
 
   return ({
-    handleGetInputs: () => {
-      ipc.server.broadcast(...midiInputs(inputs));
-    },
-    handleGetOutputs: () => {
-      ipc.server.broadcast(...midiOutputs(outputs));
-    },
+    handleGetInputs: handler(inputs),
+    handleGetOutputs: handler(outputs),
     handleMidiMessageOut: ({ port, message }) => {
       try {
-        outputsObj[port].send(message.type, message.data)
+        const { _type, ...data } = message;
+        outputsObj[port].send(_type, data)
       } catch (error) {
-        ipc.log(`could not send midi to port ${port} due to error: ${err.message} \n ${err.stack}`);
+        ipc.log(`== could not send midi to port ${port} due to error: ${error.message} \n ${error.stack}`);
       }
     },
     handleClockOut: messageAll('clock'),
@@ -63,13 +62,13 @@ const ipcHandlers = (ipc) => {
       }
     },
 
-    handleAddPortListener: ({ port, channel }) => {
+    handleAddPortListener: handler(({ port, channel }) => {
       const handler = handleMidiMessage(port)
-      store.dispatch(addMidiListener(port, channel, handler));
-    },
-    handleRemovePortListener: ({ port, channel }) => {
-      store.dispatch(removeMidiListener(port, channel));
-    }
+      store.dispatch(addPortListener(port, channel, handler));
+    }),
+    handleRemovePortListener: handler(({ port, channel }) => {
+      store.dispatch(removePortListener(port, channel));
+    })
   })
 }
 

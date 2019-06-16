@@ -9,7 +9,7 @@ const ipc = setupIpc(`track-${id}`);
 
 const { pong } = creators;
 
-const { } = ipcHandlers(ipc);
+// const { } = ipcHandlers(ipc);
 
 ipc.serve(() => {
   ipc.server.on(types.PING, (data, socket) => {
@@ -21,3 +21,5 @@ ipc.serve(() => {
 });
 
 ipc.server.start();
+
+console.log('track process')

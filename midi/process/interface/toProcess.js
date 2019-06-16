@@ -1,5 +1,7 @@
+const commonMessages = require('../../../utils/commonMessages');
+
 const types = {
-  'PING': 'PING',
+  ...commonMessages.toProcess.types,
   'GET_INPUTS': 'GET_INPUTS',
   'GET_OUTPUTS': 'GET_OUTPUTS',
   'ADD_PORT_LISTENER': 'ADD_PORT_LISTENER',
@@ -8,12 +10,12 @@ const types = {
 };
 
 const creators = {
-  ping: message => [types.PING, { message }],
+  ...commonMessages.toProcess.creators,
   getInputs: () => [types.GET_INPUTS],
   getOutputs: () => [types.GET_OUTPUTS],
-  addPortListener: port => [types.ADD_PORT_LISTENER, { port }],
-  addPortListener: port => [types.REMOVE_PORT_LISTENER, { port }],
-  midiMessageOut: (port, channel, message) => [types.MIDI_MESSAGE_OUT, { port, channel, message }]
+  addPortListener: (port, channel) => [types.ADD_PORT_LISTENER, { port, channel }],
+  removePortListener: (port, channel) => [types.REMOVE_PORT_LISTENER, { port, channel }],
+  midiMessageOut: (port, channel, message) => [types.MIDI_MESSAGE_OUT, { port, message: { ...message, channel } }]
 };
 
 module.exports = {

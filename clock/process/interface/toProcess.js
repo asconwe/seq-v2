@@ -1,17 +1,19 @@
+const commonMessages = require('../../../utils/commonMessages');
+
 const types = {
-  'PING': 'PING',
+  ...commonMessages.toProcess.types,
   'POSITION': 'POSITION',
   'START': 'START',
   'STOP': 'STOP',
   'SET_TEMPO': 'SET_TEMPO',
 };
+
 const creators = {
-  ping: message => [types.PING, { message }],
+  ...commonMessages.toProcess.creators,
   start: () => [types.START],
   stop: () => [types.STOP],
   setTempo: tempo => [types.SET_TEMPO, { tempo }],
 };
-
 
 module.exports = {
   types,

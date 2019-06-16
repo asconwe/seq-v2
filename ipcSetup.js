@@ -3,8 +3,9 @@ const selectiveLogger = require('./selectiveLogger');
 
 
 module.exports = (id) => {
-  const normalizedId = id.toUpperCase().trim();
-  ipc.config.id = normalizedId;
-  ipc.config.logger = selectiveLogger(normalizedId);
+  const capsId = id.toUpperCase().trim();
+  ipc.config.id = id.trim();
+  ipc.config.logger = selectiveLogger(capsId);
+  ipc.config.stopRetrying = true;
   return ipc;
 }

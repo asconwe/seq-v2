@@ -5,11 +5,11 @@
  * @param {function} onChange The change handler
  */
 function observeStore(store, select, onChange) {
-  let currentState;
+  let currentState = "{}";
 
   function handleChange() {
     try {
-      const nextState = JSON.stringify(select(store.getState()));
+      const nextState = JSON.stringify(select(store.getState() || {}));
       if (nextState !== currentState) {
         let prevState;
         prevState = currentState;
@@ -18,8 +18,8 @@ function observeStore(store, select, onChange) {
       }
     } catch (error) {
       const err = new Error(`INVALID STATE ERROR: ${error.message}`)
-      err.stack = error.stack;
-      throw err;
+      err.stack = `${err.stack}\n${error.stack}`;
+      console.error(err);
     }
   }
 

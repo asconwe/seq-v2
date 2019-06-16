@@ -1,4 +1,5 @@
 const { createStore } = require('redux');
+const { reducerWrapper } = require('../../../utils/commonStore');
 
 const types = {
   'ADD_PORT_LISTENER': 'ADD_PORT_LISTENER',
@@ -41,6 +42,7 @@ const addPortListener = (state, action) => {
     }
   }
   return {
+    ...state,
     portIds: [...state.portIds, action.port],
     handlersByPort: {
       ...state.handlersByPort,
@@ -55,6 +57,7 @@ const removePortListener = (state, action) => {
   const newChannels = channels.filters(channel => channel !== action.channel);
   return newChannels.length === 0
     ? ({
+      ...state,
       portIds: state.portIds.filter(name => name === action.port),
       handlersByPort: {
         ...state.handlersByPort,
@@ -73,6 +76,7 @@ const removePortListener = (state, action) => {
 const initialState = {
   handlersByPort: {},
   portIds: [],
+  ready: false,
 }
 const reducer = (state = initialState, action) => {
   switch (action.type) {
@@ -85,7 +89,7 @@ const reducer = (state = initialState, action) => {
   }
 }
 
-const store = createStore(reducer);
+const store = createStore(reducerWrapper(reducer));
 
 module.exports = {
   store,

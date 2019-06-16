@@ -1,4 +1,6 @@
 const { createStore } = require('redux');
+const { reducerWrapper } = require('../../../utils/commonStore');
+
 const types = require('./types');
 
 const initialRouteState = {
@@ -30,10 +32,11 @@ const routeReducer = (routeState = initialRouteState, action) => {
 const initialState = {
   byId: {},
   ids: [],
+  ready: false,
 }
 
 const addRoute = (state, action) => {
-  const { routeId, type, ...rest } = action;
+  const { id: routeId, type, ...rest } = action;
   if (!state.byId[routeId]) {
     const ids = [...state.ids, routeId];
     const byId = {
@@ -44,6 +47,7 @@ const addRoute = (state, action) => {
       }
     }
     return {
+      ...state,
       byId,
       ids,
     }
@@ -56,6 +60,7 @@ const deleteRoute = (state, action) => {
   const ids = state.ids.filter(id => id !== routeId);
   const { [routeId]: thisRoute, ...byId } = state.byId;
   return {
+    ...state,
     byId,
     ids,
   }
@@ -85,7 +90,7 @@ const reducer = (state = initialState, action) => {
   }
 }
 
-const store = createStore(reducer);
+const store = createStore(reducerWrapper(reducer));
 
 module.exports = {
   store,

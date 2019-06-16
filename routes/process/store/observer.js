@@ -1,14 +1,16 @@
 const observeStore = require('../../../observeStore');
-const store = require('./index');
+const { store } = require('./index');
 const selectors = require('./selectors');
-const createTrack = rquire('../../../track');
-const registeredTracks = {};
+const createTrack = require('../../../track');
+const createIpcQuery = require('../../../utils/createIpcQuery');
+const { messageCreators } = require('../../../midi/process/exports')
 
+const registeredTracks = {};
 const unregisterTrack = (id) => {
   registeredTracks[id].kill();
 }
 
-const handleChange = (currentRouteIds) => {
+const handleRouteIdsChange = (currentRouteIds) => {
   currentRouteIds.forEach(id => {
     if (!registeredTracks[id]) {
       return registeredTracks[id] = createTrack(id);
@@ -27,11 +29,49 @@ const handleChange = (currentRouteIds) => {
   })
 }
 
-module.exports = () => {
-  const unsubscribe = observeStore(
-    store,
-    selectors.selectRouteIds,
-    handleChange,
-  );
-  return unsubscribe;
+const handleRoutesChange = (ipc) => {
+  const midiIpcQuery = createIpcQuery(ipc, 'midi');
+
+  return (currentRoutes, prevRoutes) => {
+    const prevRoutesExist = prevRoutes.ids && prevRoutes.ids.length > 0;
+    if (prevRoutesExist) {
+      const newRouteIds = currentRoutes.ids.filter(id => !prevRoutes.byId[id]);
+      newRouteIds.forEach(id => {
+        midiIpcQuery(messageCreators.addPortListener(
+          currentRoutes.byId[id].inputPort,
+          currentRoutes.byId[id].inputChannel,
+        ))
+      })
+
+      const deletedRoutesIds = prevRoutes.ids.filter(id => !currentRotues.byId[id]);
+      deletedRoutesIds.forEach(id => {
+        midiIpcQuery(messageCreators.removePortListener(
+          prevRoutes.byId[id].inputPort,
+          prevRoutes.byId[id].inputChannel,
+        ))
+      })
+    } else {
+      currentRoutes.ids.forEach(id => {
+        midiIpcQuery(messageCreators.addPortListener(
+          currentRoutes.byId[id].inputPort,
+          currentRoutes.byId[id].inputChannel,
+        ))
+      });
+    }
+  }
+}
+
+module.exports = (ipc) => {
+  const observers = [
+    // observeStore(
+    //   store,
+    //   selectors.selectRouteIds,
+    //   handleRouteIdsChange,
+    // ),
+    observeStore(
+      store,
+      selectors.selectRoutesAndIds,
+      handleRoutesChange(ipc),
+    ),
+  ];
 }

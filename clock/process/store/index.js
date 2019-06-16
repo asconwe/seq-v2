@@ -1,4 +1,5 @@
 const { createStore } = require('redux');
+const { reducerWrapper } = require('../../../utils/commonStore');
 
 const types = {
   SET_TEMPO: 'SET_TEMPO',
@@ -32,7 +33,7 @@ const reducer = (state = initialState, action) => {
   }
 }
 
-const store = createStore(reducer);
+const store = createStore(reducerWrapper(reducer));
 
 module.exports = {
   store,

@@ -1,20 +1,30 @@
 const setupIpc = require('../../../ipcSetup');
-
 const { types } = require('./toProcess');
 const { creators } = require('./fromProcess');
-
-const ipcHandlers = require('../handlers/ipcHandlers');
-
-const { pong } = creators;
+const selectiveListener = require('./selectiveListener');
+const createIpcHandlers = require('../handlers/ipcHandlers');
+const { store } = require('../store');
+const { observers } = require('../../../utils/commonStore');
+const routesObserver = require('../store/observer');
 
 const ipc = setupIpc('routes');
 
-// const { } = ipcHandlers;
+const { pong } = creators;
+
+const { handleAddRoute, handleDeleteRoute, handleArmRoute, handleDisarmRoute, handleMonitorRoute, handleStopMonitoringRoute } = createIpcHandlers(ipc);
 
 
 ipc.serve(() => {
   ipc.server.on(types.PING, (data, socket) => {
-    ipc.server.emit(socket, ...pong(data.message + ' midi'));
+    const { ready } = store.getState();
+    if (ready) {
+      ipc.server.emit(socket, ...pong(data.message + ' connected to routes'));
+    } else {
+      const unsubscribeObserveIsReady = observers.observeIsReady(store, () => {
+        ipc.server.emit(socket, ...pong(data.message + ' connected to routes'));
+        unsubscribeObserveIsReady();
+      })
+    }
   })
   ipc.server.on('socket.disconnected', (socket, destroyedSocketID) => {
     ipc.log('client ' + destroyedSocketID + ' has disconnected!');
@@ -28,4 +38,10 @@ ipc.serve(() => {
   ipc.server.on(types.STOP_MONITORING_ROUTE, handleStopMonitoringRoute)
 })
 
-module.exports = { ipc };
+ipc.server.start();
+
+selectiveListener(ipc);
+
+routesObserver(ipc);
+
+

@@ -6,7 +6,7 @@ const { midiMessage } = creators;
 
 const handleMessage = (ipc, port, msg) => {
   const state = store.getState();
-  if (state.listenersByPort[port].includes(msg.channel)) {
+  if (state.handlersByPort[port].includes(msg.channel)) {
     ipc.server.broadcast(...midiMessage(port, msg));
   }
 }

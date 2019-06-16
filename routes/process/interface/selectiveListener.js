@@ -1,29 +1,33 @@
+const createConnector = require('../../../utils/createConnector');
 const { messageCreators, messageTypes } = require('../../../midi/process/exports');
-const { store, selectors } = require('../store');
+const { store } = require('../store');
+const selectors = require('../store/selectors');
+const commonStore = require('../../../utils/commonStore');
+
+const { ready } = commonStore.actionCreators;
 
 const { ping, midiMessageOut } = messageCreators;
 const { PONG, MIDI_MESSAGE } = messageTypes;
 
 module.exports = (ipc) => {
-  ipc.connectTo('midi', () => {
-    ipc.of.midi.on('connect', () => {
-      ipc.log('== sending ping to midi')
-      ipc.of.midi.emit(...ping('routes process: connected to'));
-    })
-    ipc.of.midi.on('disconnect', (data) => {
-      ipc.log('== disconnected from midi', data);
-    })
-    ipc.of.midi.on(PONG, (data) => {
-      ipc.log('== PONG from midi. Message:', data.message);
-    })
+  const connect = createConnector(ipc);
+  connect('midi').then(() => {
+    store.dispatch(ready());
     ipc.of.midi.on(MIDI_MESSAGE, (data) => {
-      const state = store.getState();
-      const relevantRoutes = selectors.selectRoutesByInput(state, data.port, data.channel)
-      relevantRoutes.forEach(routeId => {
-        const { outputPort, outputChannel, monitoring, armed } = selectors.selectRouteById(state, routeId)
-        if (monitoring) ipc.of.midi.emit(...midiMessageOut(outputPort, outputChannel, data.message))
-        if (armed) console.log(data.message); // send to sequencer
-      })
+      try {
+        const state = store.getState();
+        const relevantRoutes = selectors.selectRoutesByInput(state, data.port, data.channel)
+        relevantRoutes.forEach(routeId => {
+          const { outputPort, outputChannel, monitoring, armed } = selectors.selectRouteById(state, routeId)
+          if (monitoring) {
+            ipc.of.midi.emit(...midiMessageOut(outputPort, outputChannel, data.message))
+          }
+          if (armed) console.log(data.message); // send to sequencer
+        })
+      } catch (error) {
+        ipc.log('== error broadcasting midi message', data)
+        console.error(error);
+      }
     })
   })
 }
