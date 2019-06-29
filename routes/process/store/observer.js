@@ -63,11 +63,11 @@ const handleRoutesChange = (ipc) => {
 
 module.exports = (ipc) => {
   const observers = [
-    // observeStore(
-    //   store,
-    //   selectors.selectRouteIds,
-    //   handleRouteIdsChange,
-    // ),
+    observeStore(
+      store,
+      selectors.selectRouteIds,
+      handleRouteIdsChange,
+    ),
     observeStore(
       store,
       selectors.selectRoutesAndIds,
